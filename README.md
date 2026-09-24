@@ -164,6 +164,19 @@ npm run build
 
 OAuth, SMTP, Slack, Elasticsearch, Redis, and PostgreSQL integration checks require their respective services and credentials.
 
+## Deploying to Render
+
+The repository includes `render.yaml` for a Render Blueprint with a Dockerized API/worker, a static Vite frontend, PostgreSQL, and Redis-compatible Key Value storage.
+
+1. In Render, choose **New → Blueprint** and select this repository.
+2. Review the services named `pulse-api`, `pulse-web`, `pulse-db`, and `pulse-redis`.
+3. Enter the secret values marked `sync: false`: Google OAuth, Ethereal SMTP, and any optional Slack credentials.
+4. Deploy the Blueprint and wait for both services to become healthy.
+5. In Google Cloud OAuth settings, register `https://pulse-api.onrender.com/api/auth/google/callback`.
+6. Confirm the frontend URL is `https://pulse-web.onrender.com` and the API health endpoint responds at `https://pulse-api.onrender.com/api/health`.
+
+The API container runs `prisma migrate deploy` before starting the Express server and worker. Render PostgreSQL is authoritative for email records; Render Key Value stores BullMQ jobs, rate-limit counters, and production sessions. Elasticsearch is optional in this deployment because search falls back to PostgreSQL when no Elasticsearch endpoint is configured.
+
 ## Submission Hygiene
 
 Do not commit `.env`, `node_modules/`, or generated `dist/` directories. The included `.gitignore` excludes them. Keep dependency licenses and attributions supplied by npm packages intact.
