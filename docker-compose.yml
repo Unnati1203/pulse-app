@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment: {POSTGRES_USER: pulse, POSTGRES_PASSWORD: pulse_dev, POSTGRES_DB: pulse}
+    ports: ["5432:5432"]
+    volumes: ["pulse_pg:/var/lib/postgresql/data"]
+    healthcheck: {test: ["CMD-SHELL", "pg_isready -U pulse -d pulse"], interval: 5s, timeout: 3s, retries: 20}
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: ["6379:6379"]
+    volumes: ["pulse_redis:/data"]
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.3
+    restart: unless-stopped
+    environment: {discovery.type: single-node, xpack.security.enabled: "false", ES_JAVA_OPTS: "-Xms512m -Xmx512m"}
+    ports: ["9200:9200"]
+    volumes: ["pulse_es:/usr/share/elasticsearch/data"]
+volumes: {pulse_pg: {}, pulse_redis: {}, pulse_es: {}}
