@@ -1,9 +1,4 @@
 services:
-  - type: keyvalue
-    name: pulse-redis
-    plan: free
-    ipAllowList: []
-
   - type: web
     name: pulse-api
     runtime: docker
@@ -16,14 +11,9 @@ services:
       - key: FRONTEND_URL
         value: https://pulse-web.onrender.com
       - key: DATABASE_URL
-        fromDatabase:
-          name: pulse-db
-          property: connectionString
+        sync: false
       - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: pulse-redis
-          property: connectionString
+        sync: false
       - key: USE_REDIS_SESSION
         value: "true"
       - key: SESSION_SECRET
@@ -57,7 +47,3 @@ services:
     envVars:
       - key: VITE_API_URL
         value: https://pulse-api.onrender.com/api
-
-databases:
-  - name: pulse-db
-    plan: free
