@@ -1,4 +1,9 @@
 services:
+  - type: keyvalue
+    name: pulse-redis
+    plan: free
+    ipAllowList: []
+
   - type: web
     name: pulse-api
     runtime: docker
@@ -54,7 +59,4 @@ services:
 
 databases:
   - name: pulse-db
-    plan: free
-
-  - name: pulse-redis
     plan: free
