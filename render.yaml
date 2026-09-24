@@ -49,7 +49,7 @@ services:
       - key: MIN_EMAIL_DELAY_MS
         value: 2000
 
-  - type: static
+  - type: static_site
     name: pulse-web
     buildCommand: npm ci && npm run build:web
     staticPublishPath: ./web/dist
