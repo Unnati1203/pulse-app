@@ -1,182 +1,118 @@
-# Pulse Email Workspace
+# Pulse Email Workspace - ReachInbox Hiring Assignment
 
-Pulse is a full-stack email scheduling workspace. It provides Google sign-in, campaign composition, delayed delivery, delivery history, queue monitoring, search, and optional Slack notifications.
+Pulse is a production-grade full-stack email job scheduler service and interactive dashboard built for Outbox Labs / ReachInbox.
 
-## Project Layout
+It provides Google OAuth authentication, campaign compose & CSV import, persistent BullMQ + Redis job scheduling (no cron), Ethereal fake SMTP delivery, per-sender hourly rate-limiting with Slack alerts, worker concurrency controls, Elasticsearch fuzzy search, live Bull Board queue monitoring, and server restart resilience.
 
-- `server/`: Express and TypeScript API, Passport authentication, Prisma data access, BullMQ worker, and integration routes.
-- `web/`: React and Vite single-page application.
-- `server/prisma/`: PostgreSQL schema and migrations.
-- `docker-compose.yml`: PostgreSQL, Redis, and Elasticsearch for the complete local stack.
+---
 
-## Prerequisites
+## 🎯 Hiring Assignment Requirements Matrix
 
-- Node.js 20 or newer
-- Docker Desktop for PostgreSQL, Redis, and Elasticsearch
-- A Google OAuth web application for sign-in
-- An Ethereal Email account for test delivery
+| Requirement | Implementation Detail | Status |
+| --- | --- | --- |
+| **BullMQ + Redis Scheduler** | Persistent queue using BullMQ delayed jobs (`no cron`) | ✅ Complete |
+| **Fake SMTP Delivery** | Integrated via Nodemailer & Ethereal Email with preview links | ✅ Complete |
+| **Server Restart Resilience** | DB-backed state + startup queue sync (`restoreScheduledJobs`) | ✅ Complete |
+| **Worker Concurrency** | Configurable parallelism (`WORKER_CONCURRENCY`) | ✅ Complete |
+| **Minimum Inter-Email Delay** | Redis atomic timestamp gate (`MIN_EMAIL_DELAY_MS`) | ✅ Complete |
+| **Sender Hourly Rate Limiting** | Redis atomic Lua sliding counters with automatic next-window delay | ✅ Complete |
+| **Slack Rate-Limit Alert** | Real OAuth flow + live Slack chat message trigger | ✅ Complete |
+| **Elasticsearch Search** | Indexed multi-field fuzzy search with Postgres fallback | ✅ Complete |
+| **Google OAuth** | Passport Google Strategy with session persistence | ✅ Complete |
+| **Frontend Dashboard** | Modular React + Vite + Tailwind dashboard & modals | ✅ Complete |
+| **Live Queue Dashboard** | Bull Board UI exposed at `/admin/queues` | ✅ Complete |
 
-## Backend Setup
+---
 
-1. Install dependencies from the repository root:
+## 📁 Modular Project Architecture
 
-	```powershell
-	npm install
-	```
-
-2. Copy `.env.example` to `.env` and set the values described below.
-3. Start the infrastructure services:
-
-	```powershell
-	docker compose up -d
-	```
-
-4. Generate Prisma Client and create the database tables:
-
-	```powershell
-	npm run db:generate
-	npm run db:migrate
-	```
-
-5. Start the API and worker:
-
-	```powershell
-	npm run dev:server
-	```
-
-The API listens on `http://localhost:4000`. Health check: `GET /api/health`. Bull Board: `http://localhost:4000/admin/queues` after signing in.
-
-## Frontend Setup
-
-Run the frontend in a second terminal:
-
-```powershell
-npm run dev:web
+```text
+pulse-app/
+├── server/                    # Express + TypeScript Backend
+│   ├── src/
+│   │   ├── config/            # Infrastructure configuration (DB, Redis, ES, Transport)
+│   │   ├── controllers/       # Clean request handler logic
+│   │   ├── middleware/        # Authentication & global error handling
+│   │   ├── queue/             # BullMQ queue, worker, job restorer & Bull Board
+│   │   ├── routes/            # Modular Express endpoints
+│   │   ├── services/          # Business logic (Slack, Elasticsearch)
+│   │   ├── utils/             # Pino logger & standardized response helpers
+│   │   └── index.ts           # Clean entry point & lifecycle management
+│   ├── prisma/                # PostgreSQL schema & migrations
+│   └── Dockerfile
+├── web/                       # React + TypeScript Frontend
+│   ├── src/
+│   │   ├── components/        # Reusable UI components
+│   │   │   ├── dashboard/     # Metric cards & Recharts graphs
+│   │   │   ├── email/         # Compose, List, Detail & Search modals
+│   │   │   ├── layout/        # Sidebar & Header shell components
+│   │   │   └── ui/            # Buttons, Badges, Spinners
+│   │   ├── lib/               # API client & TypeScript interfaces
+│   │   ├── pages/             # Auth, Dashboard, Scheduled, Sent, Integrations, Queue pages
+│   │   ├── style.css          # Modern dark-mode styling
+│   │   └── App.tsx            # Application router shell
+├── docker-compose.yml         # Postgres, Redis, Elasticsearch local stack
+└── README.md
 ```
 
-Open `http://localhost:5173`.
+---
 
-To run both processes together:
+## 🚀 Quick Start Guide
 
+### Prerequisites
+- **Node.js**: v20 or newer
+- **Docker Desktop**: For running PostgreSQL, Redis, and Elasticsearch
+
+### 1. Infrastructure Setup
+Start local databases using Docker Compose:
+```powershell
+docker compose up -d
+```
+
+### 2. Environment Configuration
+Copy `.env.example` to `.env`:
+```powershell
+cp .env.example .env
+```
+
+Ensure `.env` contains valid credentials for:
+- `DATABASE_URL` (PostgreSQL connection string)
+- `REDIS_URL` (Redis connection string)
+- `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET` (Google Cloud Console OAuth)
+- `ETHEREAL_USER` & `ETHEREAL_PASSWORD` (Test inbox credentials from [ethereal.email](https://ethereal.email))
+
+### 3. Database Migration
+```powershell
+npm run db:generate
+npm run db:migrate
+```
+
+### 4. Start Development Stack
+To run both backend API (Port 4000) and frontend (Port 5173) simultaneously:
 ```powershell
 npm run dev
 ```
 
-## Environment Variables
+---
 
-| Variable | Purpose |
-| --- | --- |
-| `DATABASE_URL` | PostgreSQL connection string. |
-| `REDIS_URL` | Redis connection used by BullMQ and production sessions. |
-| `ELASTICSEARCH_URL` | Elasticsearch endpoint for indexed email search. |
-| `FRONTEND_URL` | Allowed frontend origin and OAuth redirect destination. |
-| `SESSION_SECRET` | Secret used to sign session cookies. Use a long random value. |
-| `USE_REDIS_SESSION` | Set to `true` when Redis-backed sessions are available. Local development defaults to `false`. |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID. Required for login. |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret. Required for login. |
-| `GOOGLE_CALLBACK_URL` | Google callback, normally `http://localhost:4000/api/auth/google/callback`. |
-| `ETHEREAL_HOST` | Ethereal SMTP host, normally `smtp.ethereal.email`. |
-| `ETHEREAL_PORT` | Ethereal SMTP port, normally `587`. |
-| `ETHEREAL_USER` | Ethereal SMTP username. |
-| `ETHEREAL_PASSWORD` | Ethereal SMTP password. |
-| `SLACK_CLIENT_ID` | Optional Slack OAuth client ID. |
-| `SLACK_CLIENT_SECRET` | Optional Slack OAuth client secret. |
-| `SLACK_CALLBACK_URL` | Optional Slack callback, normally `http://localhost:4000/api/slack/callback`. |
-| `WORKER_CONCURRENCY` | Maximum number of BullMQ jobs processed concurrently. |
-| `MAX_EMAILS_PER_HOUR` | Per-sender hourly delivery limit. |
-| `MIN_EMAIL_DELAY_MS` | Minimum delay between messages from the same sender. |
+## 🧪 Key Backend Mechanisms
 
-### Ethereal Email
+### 1. Persistent Scheduling & Restart Survival
+Emails are stored in PostgreSQL first (`SCHEDULED` status). BullMQ delayed jobs are created with deterministic job IDs (`email-{id}`). If the server crashes or restarts, `restoreScheduledJobs()` queries un-sent emails from PostgreSQL and re-enqueues missing jobs into BullMQ without duplicating sends.
 
-Create a test inbox at [ethereal.email](https://ethereal.email), then copy its SMTP host, port, username, and password into `.env`. The worker sends through Ethereal and stores the generated message ID and preview URL. Ethereal is intended for testing and does not deliver normal production email.
+### 2. Rate Limiting & Concurrency
+- **Concurrency**: BullMQ workers process jobs in parallel up to `WORKER_CONCURRENCY`.
+- **Inter-Email Delay**: A Redis atomic timestamp gate guarantees `MIN_EMAIL_DELAY_MS` spacing per sender.
+- **Hourly Limit**: Redis Lua scripts atomically track per-sender hourly counts. If limit is exceeded, jobs are automatically postponed to the next UTC hour window and a live Slack alert is triggered.
 
-### Google OAuth
+---
 
-Create a Google OAuth web client and register this exact redirect URI:
-
-```text
-http://localhost:4000/api/auth/google/callback
-```
-
-Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, then restart the API.
-
-### Slack
-
-Slack configuration is optional. To enable it, create a Slack app with the `chat:write` scope and register:
-
-```text
-http://localhost:4000/api/slack/callback
-```
-
-## Architecture
-
-### Scheduling
-
-The compose workflow submits one record per recipient to the API. The API validates the request, stores the email, and adds a delayed BullMQ job with a stable job ID. The worker claims scheduled records before sending, which prevents two workers from processing the same record.
-
-### Persistence and Restart Recovery
-
-PostgreSQL is the source of truth for users and email status. Redis stores BullMQ delayed jobs and rate-limit counters. Redis persistence is enabled by Docker Compose. When the API starts, it scans scheduled database records and restores any missing queue jobs, covering a failure between database insertion and queue insertion.
-
-### Rate Limiting and Concurrency
-
-`WORKER_CONCURRENCY` controls the number of jobs processed at once. A Redis Lua script atomically reserves each sender's hourly capacity. A Redis timestamp gate enforces `MIN_EMAIL_DELAY_MS` across all workers. Jobs over the hourly limit are moved to the next UTC hour instead of being discarded. Slack rate-limit notices are deduplicated by sender and hour.
-
-### Search and Degraded Services
-
-Email fields are indexed in Elasticsearch for fuzzy search. If Elasticsearch is unavailable, search falls back to PostgreSQL. Queue metrics also return a bounded degraded response when Redis is unavailable.
-
-## Implemented Features
-
-### Backend
-
-- Google OAuth login and logout with HttpOnly session cookies.
-- Express API with CORS, Helmet, Zod validation, and protected routes.
-- Campaign scheduler with one persisted email record per recipient.
-- BullMQ delayed jobs and a worker with configurable concurrency.
-- PostgreSQL persistence through Prisma.
-- Restart recovery for missing scheduled jobs.
-- Per-sender hourly rate limiting and minimum send spacing.
-- Retry handling and terminal email states: scheduled, processing, sent, and failed.
-- Elasticsearch search with PostgreSQL fallback.
-- Optional Slack OAuth connection and rate-limit notifications.
-- Bull Board queue monitoring.
-- Ethereal preview URLs for test messages.
-
-### Frontend
-
-- Google sign-in screen and authenticated workspace shell.
-- Overview dashboard with delivery totals, activity chart, queue depth, and rate-limit usage.
-- Compose modal with recipient import, scheduling, sender selection, delay, and hourly limit controls.
-- Scheduled and sent email tables with filtering and pagination.
-- Email detail view and search modal.
-- Integrations page for Slack status and connection management.
-- Queue monitor with worker and Redis status.
-- Responsive sidebar navigation and mobile layout.
-- Toast notifications for successful actions and API failures.
-
-## Validation
+## ⚙️ Verification & Build Commands
 
 ```powershell
+# Run TypeScript typechecks for both server and web
 npm run typecheck
+
+# Build production bundles
 npm run build
 ```
-
-OAuth, SMTP, Slack, Elasticsearch, Redis, and PostgreSQL integration checks require their respective services and credentials.
-
-## Deploying to Render
-
-The repository includes `render.yaml` for a no-cost Render Blueprint with a Dockerized API/worker and a static Vite frontend. The Blueprint intentionally does not provision paid Render data services.
-
-1. In Render, choose **New → Blueprint** and select this repository.
-2. Review the services named `pulse-api` and `pulse-web`.
-3. Create free external Neon PostgreSQL and Upstash Redis databases, then enter their URLs for `DATABASE_URL` and `REDIS_URL` along with the other secret values marked `sync: false`.
-4. Deploy the Blueprint and wait for both services to become healthy.
-5. In Google Cloud OAuth settings, register `https://pulse-api.onrender.com/api/auth/google/callback`.
-6. Confirm the frontend URL is `https://pulse-web.onrender.com` and the API health endpoint responds at `https://pulse-api.onrender.com/api/health`.
-
-The API container runs `prisma migrate deploy` before starting the Express server and worker. PostgreSQL is authoritative for email records; Redis stores BullMQ jobs, rate-limit counters, and production sessions. Elasticsearch is optional in this deployment because search falls back to PostgreSQL when no Elasticsearch endpoint is configured.
-
-## Submission Hygiene
-
-Do not commit `.env`, `node_modules/`, or generated `dist/` directories. The included `.gitignore` excludes them. Keep dependency licenses and attributions supplied by npm packages intact.
