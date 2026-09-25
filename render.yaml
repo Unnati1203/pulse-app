@@ -9,7 +9,7 @@ services:
       - key: PORT
         value: 4000
       - key: FRONTEND_URL
-        value: https://pulse-web.onrender.com
+        value: https://pulse-app-lp6johm1i-unnati3.vercel.app
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL
@@ -23,7 +23,7 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: GOOGLE_CALLBACK_URL
-        value: https://pulse-api.onrender.com/api/auth/google/callback
+        value: https://pulse-app-ztki.onrender.com/api/auth/google/callback
       - key: ETHEREAL_HOST
         value: smtp.ethereal.email
       - key: ETHEREAL_PORT
@@ -46,4 +46,4 @@ services:
     staticPublishPath: ./web/dist
     envVars:
       - key: VITE_API_URL
-        value: https://pulse-api.onrender.com/api
+        value: https://pulse-app-ztki.onrender.com/api
