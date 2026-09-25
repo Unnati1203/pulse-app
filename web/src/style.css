@@ -462,3 +462,128 @@ tbody tr:hover { background: #fbfdfc; }
 .auth-button { width: 100%; }
 
 @media (max-width: 780px) { .main { padding: 68px 14px 28px; } .topbar { margin: -68px -14px 22px; padding: 0 14px 0 62px; } }
+
+/* Enhanced Compose Modal Inputs & Form Controls */
+.compose-modal {
+  border-radius: 14px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18) !important;
+}
+
+.compose-left label,
+.compose-right label,
+.side-section label {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #4b5563 !important;
+  margin-bottom: 6px !important;
+}
+
+.compose-left input,
+.compose-left textarea,
+.compose-right input:not([type="datetime-local"]),
+.compose-right textarea {
+  width: 100% !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+  padding: 10px 14px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  color: #1f2937 !important;
+  background: #ffffff !important;
+  transition: all 0.15s ease-in-out !important;
+  outline: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.compose-left input:focus,
+.compose-left textarea:focus,
+.compose-right input:focus {
+  border-color: #00a947 !important;
+  box-shadow: 0 0 0 3px rgba(0, 169, 71, 0.15) !important;
+}
+
+.compose-left textarea {
+  min-height: 140px !important;
+  line-height: 1.5 !important;
+}
+
+.compose-right input[type="datetime-local"] {
+  font-size: 13px !important;
+  padding: 9px 12px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  color: #1f2937 !important;
+  background: #ffffff !important;
+  outline: none !important;
+}
+
+.input-unit {
+  display: flex !important;
+  align-items: center !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  overflow: hidden !important;
+  transition: all 0.15s ease-in-out !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.input-unit:focus-within {
+  border-color: #00a947 !important;
+  box-shadow: 0 0 0 3px rgba(0, 169, 71, 0.15) !important;
+}
+
+.input-unit input {
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 10px 12px !important;
+  font-size: 13px !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+  outline: none !important;
+}
+
+.input-unit span {
+  padding: 0 12px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #6b7280 !important;
+  background: #f3f4f6 !important;
+  border-left: 1px solid #e5e7eb !important;
+  height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.dropzone {
+  border: 2px dashed #cbd5e1 !important;
+  border-radius: 10px !important;
+  padding: 20px !important;
+  background: #f8fafc !important;
+  transition: all 0.15s ease-in-out !important;
+  cursor: pointer !important;
+}
+
+.dropzone:hover, .dropzone.dragging {
+  border-color: #00a947 !important;
+  background: #f0fdf4 !important;
+}
+
+.dropzone.has-file {
+  border-style: solid !important;
+  border-color: #bbf7d0 !important;
+  background: #f0fdf4 !important;
+}
+
+.field-note {
+  font-size: 11px !important;
+  color: #6b7280 !important;
+  margin-top: 4px !important;
+}
+
