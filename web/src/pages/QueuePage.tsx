@@ -16,7 +16,7 @@ export function QueuePage() {
     : 'http://localhost:4000/admin/queues';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 queue-page">
       <div className="flex-between">
         <div>
           <h1>BullMQ Queue & Worker Monitor</h1>

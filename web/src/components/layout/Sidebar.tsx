@@ -75,10 +75,10 @@ export function Sidebar({ user, mobile, onCloseMobile, onOpenSearch, onOpenCompo
           </button>
         </nav>
         <div className="side-bottom">
-          <button className="nav-link">
+          <NavLink to="/settings" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             <Settings size={17} />
             Settings
-          </button>
+          </NavLink>
           <div className="profile">
             {user?.avatar ? (
               <img src={user.avatar} />

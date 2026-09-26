@@ -15,6 +15,7 @@ import { ScheduledPage } from './pages/ScheduledPage';
 import { SentPage } from './pages/SentPage';
 import { IntegrationsPage } from './pages/IntegrationsPage';
 import { QueuePage } from './pages/QueuePage';
+import { SettingsPage } from './pages/SettingsPage';
 
 const navLabels: Record<string, string> = {
   '/': 'Overview',
@@ -22,6 +23,7 @@ const navLabels: Record<string, string> = {
   '/sent': 'Sent',
   '/integrations': 'Integrations',
   '/queue': 'Queue Monitor',
+  '/settings': 'Settings',
 };
 
 export default function App() {
@@ -88,6 +90,7 @@ export default function App() {
             <Route path="/sent" element={<SentPage onOpenDetail={setDetailEmail} />} />
             <Route path="/integrations" element={<IntegrationsPage />} />
             <Route path="/queue" element={<QueuePage />} />
+            <Route path="/settings" element={<SettingsPage user={user} />} />
             <Route path="*" element={<DashboardPage user={user} onOpenCompose={() => setComposeOpen(true)} />} />
           </Routes>
         </div>
